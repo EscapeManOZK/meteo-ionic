@@ -1,44 +1,57 @@
 <ion-header>
   <ion-navbar>
     <ion-title>
-      Weather
+      Météo
     </ion-title>
   </ion-navbar>
 </ion-header>
 
 <ion-content>
   <form (ngSubmit)="logForm()">
-    <ion-item>
-      <ion-label>City name</ion-label>
+    <ion-item class="size">
+      <ion-label floating>Nom d'une ville</ion-label>
       <ion-input type="text" [(ngModel)]="city.LocalizedName" name="title"></ion-input>
     </ion-item>
-    <p class="center"><button ion-button type="submit">Choose</button></p>
+    <p class="center"><button ion-button type="submit">Rechercher les villes<span *ngIf="city.LocalizedName!==''">&nbsp;avec&nbsp;</span>{{city.LocalizedName}}</button></p>
   </form>
-  <ion-title *ngIf="cities.length>0&&!selectedCity">Choose a city :</ion-title>
-  <ion-list *ngIf="cities.length>0&&!selectedCity" inset>
-    <button class="center" ion-item *ngFor="let item of cities;"
-      (click)="choose_cities(item)">{{item.LocalizedName}}</button>
-  </ion-list>
   <div *ngIf="selectedCity">
     <ion-title class="center">
-      Weather of {{selectedCity.LocalizedName}}
+      Météo de {{selectedCity.LocalizedName}}
     </ion-title>
     <ion-list class="noP" *ngIf="currentWeather">
       <ion-card *ngFor="let item of currentWeather.DailyForecasts;">
         <ion-card-header>
-          <ion-card-title>Weather of {{item.Date}}</ion-card-title>
+          <ion-card-title class="center">Météo du {{item.Date}}</ion-card-title>
         </ion-card-header>
         <ion-card-content>
-          <h2 class="center">Day</h2>
-          <p class="center"><img src="https://www.accuweather.com/images/weathericons/{{item.Day.Icon}}.svg"
-              alt="{{item.Day.IconPhrase}}"></p>
-          <p class="center"><span class="Max">{{item.Temperature.Maximum.Value}}
-              °{{item.Temperature.Maximum.Unit}}</span> /
-            <span>{{item.Temperature.Minimum.Value}}
-              °{{item.Temperature.Minimum.Unit}}</span></p>
-          <p class="center">{{item.Day.IconPhrase}}</p>
-          <p *ngIf="item.Day.HasPrecipitation" class="center">Announced precipitation</p>
-          <p *ngIf="!item.Day.HasPrecipitation" class="center">No precipitation announced</p>
+          <ion-grid>
+            <ion-row>
+              <ion-col col-6>
+                <h2 class="center">Jour</h2>
+                <p class="center"><img src="https://www.accuweather.com/images/weathericons/{{item.Day.Icon}}.svg"
+                    alt="{{item.Day.IconPhrase}}"></p>
+                <p class="center"><span class="Max">{{item.Temperature.Maximum.Value}}
+                    °{{item.Temperature.Maximum.Unit}}</span> /
+                  <span>{{item.Temperature.Minimum.Value}}
+                    °{{item.Temperature.Minimum.Unit}}</span></p>
+                <p class="center">{{item.Day.IconPhrase}}</p>
+                <p *ngIf="item.Day.HasPrecipitation" class="center">Précipitation annoncé</p>
+                <p *ngIf="!item.Day.HasPrecipitation" class="center">Pas de précipitation annoncé</p>
+              </ion-col>
+              <ion-col col-6>
+                  <h2 class="center">Nuit</h2>
+                  <p class="center"><img src="https://www.accuweather.com/images/weathericons/{{item.Night.Icon}}.svg"
+                      alt="{{item.Night.IconPhrase}}"></p>
+                  <p class="center"><span class="Max">{{item.Temperature.Maximum.Value}}
+                      °{{item.Temperature.Maximum.Unit}}</span> /
+                    <span>{{item.Temperature.Minimum.Value}}
+                      °{{item.Temperature.Minimum.Unit}}</span></p>
+                  <p class="center">{{item.Night.IconPhrase}}</p>
+                  <p *ngIf="item.Night.HasPrecipitation" class="center">Précipitation annoncé</p>
+                  <p *ngIf="!item.Night.HasPrecipitation" class="center">Pas de précipitation annoncé</p>
+                </ion-col>
+            </ion-row>
+          </ion-grid>
         </ion-card-content>
       </ion-card>
     </ion-list>
