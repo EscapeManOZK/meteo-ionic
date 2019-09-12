@@ -1,0 +1,4 @@
+https://developer.accuweather.com/user/login?destination=user/me/apps&autologout_timeout=1
+https://ionicframework.com/docs/api/modal
+https://ionicframework.com/docs/v3/components/#navigation
+https://www.accuweather.com/en/fr/paris/623/daily-weather-forecast/623?unit=c&lang=en-us
