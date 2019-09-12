@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController, ToastController, LoadingController } from 'ionic-angular';
 import { Geolocation } from '@ionic-native/geolocation';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Cities } from '../../app/model/cities';
 import { Weather } from '../../app/model/weather';
 import { CityService } from '../../app/services/city.service';
@@ -16,6 +16,7 @@ export class HomePage {
 
   selectedCity: Cities;
   currentWeather: Weather;
+  loading = true;
 
   private cityService: CityService;
   private weatherService: WeatherService;
@@ -29,20 +30,27 @@ export class HomePage {
     this.cityService = new CityService(http);
     this.weatherService = new WeatherService(http);
 
-    this.getPosition();
+    this.getPosition(false);
   }
 
-  getPosition() {
-    const loader = this.loadingCtrl.create({
-      content: "Récupération de votre position",
-    });
-    loader.present();
+  getPosition(start: boolean) {
+    let loader;
+    if (start) {
+      loader = this.loadingCtrl.create({
+        content: "Récupération de votre position",
+      });
+      loader.present();
+    }
     this.geolocation.getCurrentPosition().then((resp) => {
-      loader.dismiss();
+      if (start) {
+        loader.dismiss();
+      }
+      this.loading = false;
       this.getData(resp.coords.latitude, resp.coords.longitude);
     }).catch((error) => {
-      console.error(error);
-      loader.dismiss();
+      if (start) {
+        loader.dismiss();
+      }
       let toast = this.toastCtrl.create({
         message: 'Une erreur c\'est produite. Impossible de récupérer les données GPS',
         duration: 2000,
@@ -53,9 +61,8 @@ export class HomePage {
   }
 
   getData(latitude: any, longitude: any) {
-    console.log(latitude + " "+longitude)
     const loader2 = this.loadingCtrl.create({
-      content: "Chargement des données",
+      content: "Chargement des données GPS",
     });
     loader2.present();
     this.cityService.findOneWtihGeo(latitude, longitude, 'fr').subscribe(
@@ -66,7 +73,7 @@ export class HomePage {
             this.currentWeather = this.DateParse(response.body);
             loader2.dismiss();
           },
-            error => {
+            (error: HttpErrorResponse) => {
               loader2.dismiss();
               let toast1 = this.toastCtrl.create({
                 message: 'Une erreur c\'est produite. Impossible de récupérer la météo',
@@ -85,10 +92,10 @@ export class HomePage {
           toast2.present(toast2);
         }
       }, // success path
-      error => {
+      (error: HttpErrorResponse) => {
         loader2.dismiss();
         let toast3 = this.toastCtrl.create({
-          message: 'Une erreur c\'est produite. Impossible de récupérer les villes',
+          message: 'Une erreur c\'est produite. Impossible de récupérer les villes', //error.headers.keys.toString()
           duration: 2000,
           position: 'bottom'
         });

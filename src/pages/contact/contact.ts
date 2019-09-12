@@ -91,14 +91,14 @@ export class ContactPage {
 <ion-header>
   <ion-toolbar>
     <ion-title>
-      Choisie une ville :
-    </ion-title>
-    <ion-buttons>
       <button ion-button outline (click)="dismiss()">
-        <span ion-text color="primary" showWhen="ios">Cancel</span>
-        <ion-icon name="md-close" showWhen="android, windows"></ion-icon>
+        Cancel
+        <ion-icon name="md-close"></ion-icon>
       </button>
-    </ion-buttons>
+      <h2 style="display: inline-block;margin: 1vh 0px 0px;">
+        Choisie une ville :
+      </h2>
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 <ion-content>
