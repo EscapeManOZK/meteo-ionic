@@ -1,7 +1,7 @@
 import { Weather } from './../../app/model/weather';
 import { Cities } from './../../app/model/cities';
 import { Component, OnInit } from '@angular/core';
-import { NavController, ModalController, Platform, NavParams, ViewController, ToastController } from 'ionic-angular';
+import { NavController, ModalController, Platform, NavParams, ViewController, ToastController, LoadingController } from 'ionic-angular';
 import { CityService } from '../../app/services/city.service';
 import { HttpClient } from '@angular/common/http';
 import { WeatherService } from '../../app/services/weather.service';
@@ -17,7 +17,6 @@ export class ContactPage {
   cities: Cities[];
   selectedCity: Cities;
   currentWeather: Weather;
-  loading = false;
 
   private weatherService: WeatherService;
 
@@ -26,7 +25,8 @@ export class ContactPage {
   constructor(public navCtrl: NavController,
     private http: HttpClient,
     public modalCtrl: ModalController,
-    public toastCtrl: ToastController
+    public toastCtrl: ToastController,
+    public loadingCtrl: LoadingController
   ) {
     this.city = new Cities();
     this.city.LocalizedName = '';
@@ -44,10 +44,24 @@ export class ContactPage {
             this.city.LocalizedName = '';
           } else {
             this.selectedCity = data
+            this.city.LocalizedName = this.selectedCity.LocalizedName;
+            const loader = this.loadingCtrl.create({
+              content: "Chargement",
+            });
+            loader.present();
             this.weatherService.findOneByCityId(this.selectedCity.Key, 'fr').subscribe(response => {
               this.currentWeather = this.DateParse(response.body);
-              this.loading = false;
-            });
+              loader.dismiss();
+            },
+              error => {
+                loader.dismiss();
+                let toast = this.toastCtrl.create({
+                  message: 'Une erreur c\'est produite. Impossible de récupérer la météo',
+                  duration: 2000,
+                  position: 'bottom'
+                });
+                toast.present(toast);
+              });
           }
         }
       });
@@ -57,7 +71,7 @@ export class ContactPage {
         duration: 2000,
         position: 'bottom'
       });
-  
+
       toast.present(toast);
     }
   }
@@ -79,8 +93,8 @@ export class ContactPage {
     <ion-title>
       Choisie une ville :
     </ion-title>
-    <ion-buttons start>
-      <button ion-button (click)="dismiss()">
+    <ion-buttons>
+      <button ion-button outline (click)="dismiss()">
         <span ion-text color="primary" showWhen="ios">Cancel</span>
         <ion-icon name="md-close" showWhen="android, windows"></ion-icon>
       </button>
@@ -112,7 +126,8 @@ export class ModalContentPage implements OnInit {
     public params: NavParams,
     public viewCtrl: ViewController,
     private http: HttpClient,
-    public toastCtrl: ToastController
+    public toastCtrl: ToastController,
+    public loadingCtrl: LoadingController
 
   ) {
     this.cityService = new CityService(http);
@@ -128,27 +143,73 @@ export class ModalContentPage implements OnInit {
         duration: 2000,
         position: 'bottom'
       });
-  
+
       toast.present(toast);
     } else {
-      this.cityService.findAll(this.params.get('data'), 'fr')
+      const loader = this.loadingCtrl.create({
+        content: "Chargement",
+      });
+      loader.present();
+      this.cityService.findAllWithName(this.params.get('data'), 'fr')
         .subscribe(
           response => {
             this.cities = response.body;
-            if (this.cities.length === 0) {
-              let toast = this.toastCtrl.create({
-                message: 'Aucune ville trouver pour ' + this.params.get('data'),
-                duration: 2000,
-                position: 'bottom'
-              });
-              toast.present(toast);
-              toast.onWillDismiss(() => {
-              });
-              this.viewCtrl.dismiss('');
-            } 
-          } // success path
+            this.cityService.findAll(this.params.get('data'), 'fr')
+              .subscribe(
+                response => {
+                  this.cities = this.fusion(response.body);
+                  loader.dismiss();
+                  if (this.cities.length === 0) {
+                    let toast = this.toastCtrl.create({
+                      message: 'Aucune ville trouver pour ' + this.params.get('data'),
+                      duration: 2000,
+                      position: 'bottom'
+                    });
+                    toast.present(toast);
+                    toast.onWillDismiss(() => {
+                    });
+                    this.viewCtrl.dismiss('');
+                  }
+                }, // success path
+                error => {
+                  loader.dismiss();
+                  let toast = this.toastCtrl.create({
+                    message: 'Une erreur c\'est produite. Impossible de récupérer les villes',
+                    duration: 2000,
+                    position: 'bottom'
+                  });
+
+                  toast.present(toast);
+                }
+              );
+          }, // success path
+          error => {
+            loader.dismiss();
+            let toast = this.toastCtrl.create({
+              message: 'Une erreur c\'est produite. Impossible de récupérer les villes',
+              duration: 2000,
+              position: 'bottom'
+            });
+
+            toast.present(toast);
+          }
         );
     }
+  }
+  fusion(body: Cities[]): Cities[] {
+    let data = this.cities;
+    body.forEach(city => {
+      let find = false;
+      this.cities.forEach(value => {
+        if (value.Key === city.Key) {
+          find = true;
+        }
+      });
+      if (!find) {
+        data.push(city);
+      }
+    });
+    return data;
   }
 
   choose_cities(item: Cities) {
