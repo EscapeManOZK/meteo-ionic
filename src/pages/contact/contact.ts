@@ -79,7 +79,7 @@ export class ContactPage {
   DateParse(body: Weather): Weather {
     body.Headline.EffectiveDate = moment(body.Headline.EffectiveDate).format('MM/DD/YYYY');
     body.DailyForecasts.forEach((value) => {
-      value.Date = moment(value.Date).format('MM/DD/YYYY');
+      value.Date = moment(value.Date).format('DD/MM/YYYY');
     });
     return body;
   }

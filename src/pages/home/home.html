@@ -13,7 +13,10 @@
   <br>
   <div *ngIf="selectedCity">
     <ion-title class="center">
-      Météo à votre position : {{selectedCity.LocalizedName}}
+      Météo à votre position :
+    </ion-title>
+    <ion-title class="center">
+      {{selectedCity.LocalizedName}}
     </ion-title>
     <br>
     <ion-list class="noP" *ngIf="currentWeather">
