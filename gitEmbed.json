@@ -1,0 +1,22 @@
+{
+    "owner": "EscapeManOZK",
+    "repo": "meteo-ionic",
+    "ref": "master",
+    "embed": [
+        {
+            "type": "ts",
+            "label": "Main Ts Module",
+            "path": "src/app/app.module.ts"
+        },
+        {
+            "type": "ts",
+            "label": "Weather service",
+            "path": "src/app/services/weather.service.ts"
+        },
+        {
+            "type": "ts",
+            "label": "City service",
+            "path": "src/app/services/city.service.ts"
+        }
+    ]
+}
